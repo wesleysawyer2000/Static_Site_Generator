@@ -21,7 +21,7 @@ def copy_to(directory_source, directory_destination, basepath):
             shutil.copy(file_source_full, directory_destination)
         else:
             directory_destination_new = os.path.join(directory_destination, file_source)
-            copy_to(file_source_full, directory_destination_new)
+            copy_to(file_source_full, directory_destination_new, basepath)
 
 
 def extract_title(markdown):
