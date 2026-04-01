@@ -13,7 +13,6 @@ def main():
     # Copy and overwrite from one directory to another
     if os.path.exists("docs"):
         shutil.rmtree("docs") # Delete content in destination directory
-    copy_to("static", "docs")
 
     # Generate Page
     copy_to("static", "docs", basepath)
