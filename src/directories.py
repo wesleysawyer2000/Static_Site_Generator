@@ -6,7 +6,7 @@ from conversions import *
 
 
 # recursive function that copies all the contents from a source directory to a destination directory
-def copy_to(directory_source, directory_destination):
+def copy_to(directory_source, directory_destination, basepath):
     # Check if Source Exists
     if os.path.exists(directory_source) is False:
         raise Exception("ERROR: Source directory does NOT exist")
@@ -16,7 +16,7 @@ def copy_to(directory_source, directory_destination):
         os.mkdir(directory_destination)
     # Copy Files
     for file_source in files_source:
-        file_source_full = os.path.join(directory_source, file_source) # Get full path to file location
+        file_source_full = os.path.join(directory_source, file_source)
         if os.path.isfile(file_source_full) is True:
             shutil.copy(file_source_full, directory_destination)
         else:
@@ -32,37 +32,35 @@ def extract_title(markdown):
     return matches[0].strip()
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
-    # Convert Markdown to file and extract the title + content
     file_from = open(from_path, "r")
     markdown = file_from.read()
     html_content = markdown_to_html_node(markdown)
     html_content_new = html_content.to_html()
     html_title = extract_title(markdown)
     file_from.close()
-    # Plug in title and content values into template
     file_template = open(template_path, "r+")
     html_template = file_template.read()
     html_template_clean1 = html_template.replace("{{ Title }}", html_title)
     html_template_clean2 = html_template_clean1.replace("{{ Content }}", f"{html_content_new}")
+    html_template_clean3 = html_template_clean2.replace("href=\"/", f"href=\"{basepath}")
+    html_template_clean4 = html_template_clean3.replace("src=\"/", f"src=\"{basepath}")
     file_template.close()
-    # Copy to new destination
     dest_directory = os.path.dirname(dest_path)
     if os.path.exists(dest_directory) is False:
         os.makedirs(dest_directory, exist_ok=True)
     file_dest = open(dest_path, "w")
-    file_dest.write(html_template_clean2)
+    file_dest.write(html_template_clean4)
     file_dest.close()
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     for filename in os.listdir(dir_path_content):
         from_path = os.path.join(dir_path_content, filename)
         dest_path = os.path.join(dest_dir_path, filename)
         if os.path.isfile(from_path):
             dest_path = Path(dest_path).with_suffix(".html")
-            generate_page(from_path, template_path, dest_path)
+            generate_page(from_path, template_path, dest_path, basepath)
         else:
-            generate_pages_recursive(from_path, template_path, dest_path)
-
+            generate_pages_recursive(from_path, template_path, dest_path, basepath)
