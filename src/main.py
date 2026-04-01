@@ -16,6 +16,7 @@ def main():
     copy_to("static", "docs")
 
     # Generate Page
+    copy_to("static", "docs", basepath)
     generate_pages_recursive("content", "template.html", "docs", basepath)
 
 if __name__ == "__main__":
